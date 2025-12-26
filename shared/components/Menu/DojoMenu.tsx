@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import TrainingActionBar from '@/shared/components/Menu/TrainingActionBar';
 import Info from '@/shared/components/Menu/Info';
 import KanaCards from '@/features/Kana/components/KanaCards';
-import CollectionSelector from '@/shared/components/Menu/CollectionSelector';
+import UnitSelector from '@/shared/components/Menu/UnitSelector';
 import KanjiCards from '@/features/Kanji/components';
 import { usePathname } from 'next/navigation';
 import VocabCards from '@/features/Vocabulary/components';
@@ -39,7 +39,7 @@ const DojoMenu = () => {
               addKanaGroupIndices(indices);
             }}
             className='px-2 py-3'
-            borderBottomThickness={10}
+            borderBottomThickness={14}
             borderRadius='3xl'
           >
             <MousePointer className={cn('fill-current')} />
@@ -49,15 +49,15 @@ const DojoMenu = () => {
           <SelectionStatusBar />
         </div>
       ) : pathWithoutLocale === '/kanji' ? (
-        <div className='flex flex-col gap-3'>
+        <div className='flex flex-col gap-4'>
           <Info />
-          <CollectionSelector />
+          <UnitSelector />
           <KanjiCards />
         </div>
       ) : pathWithoutLocale === '/vocabulary' ? (
-        <div className='flex flex-col gap-3'>
+        <div className='flex flex-col gap-4'>
           <Info />
-          <CollectionSelector />
+          <UnitSelector />
           <VocabCards />
         </div>
       ) : null}

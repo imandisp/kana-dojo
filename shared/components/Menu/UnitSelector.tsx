@@ -44,13 +44,16 @@ const VOCAB_SETS = {
   n1: calculateSets(N1VocabLength)
 };
 
-const CollectionSelector = () => {
+const UnitSelector = () => {
   const { playClick } = useClick();
   const pathname = usePathname();
   const pathWithoutLocale = removeLocaleFromPath(pathname);
   const contentType = pathWithoutLocale.slice(1) as ContentType;
 
   const isKanji = contentType === 'kanji';
+
+  // Toggle between old (sliding indicator) and new (action buttons) design
+  const useNewUnitSelectorDesign = true;
 
   // Kanji store
   const {
@@ -109,6 +112,63 @@ const CollectionSelector = () => {
     });
   }, [sets]);
 
+  if (useNewUnitSelectorDesign) {
+    // New design: All units as equal ActionButtons (matching PreGameScreen)
+    return (
+      <div className='flex flex-col'>
+        {/* Unit Selector - ActionButton style matching PreGameScreen */}
+        <div className='flex flex-col gap-4 md:flex-row'>
+          {collections.map(collection => {
+            const isSelected = collection.name === selectedCollection;
+
+            return (
+              <ActionButton
+                key={collection.name}
+                onClick={() => handleCollectionSelect(collection.name)}
+                colorScheme={isSelected ? 'main' : 'secondary'}
+                borderColorScheme={isSelected ? 'main' : 'secondary'}
+                borderBottomThickness={14}
+                borderRadius='4xl'
+                className={clsx(
+                  'flex-1 flex-col gap-1 px-4 pt-4 pb-6',
+                  !isSelected && 'opacity-60'
+                )}
+              >
+                <div className='flex items-center gap-2'>
+                  <span className='text-xl'>{collection.displayName}</span>
+                  <span
+                    className={clsx(
+                      'rounded px-1.5 py-0.5 text-xs',
+                      isSelected
+                        ? 'bg-[var(--background-color)]/20 text-[var(--background-color)]'
+                        : 'bg-[var(--background-color)]/20 text-[var(--background-color)]'
+                    )}
+                  >
+                    {collection.jlpt}
+                  </span>
+                </div>
+                <span
+                  className={clsx(
+                    'text-xs',
+                    isSelected
+                      ? 'text-[var(--background-color)]/80'
+                      : 'text-[var(--background-color)]/80'
+                  )}
+                >
+                  {collection.subtitle}
+                </span>
+              </ActionButton>
+            );
+          })}
+        </div>
+
+        {/* Selection Status Bar - Fixed at top */}
+        <SelectionStatusBar />
+      </div>
+    );
+  }
+
+  // Old design: Card background with sliding indicator animation
   return (
     <div className='flex flex-col'>
       {/* Modern Toggle-Style Unit Selector */}
@@ -177,4 +237,4 @@ const CollectionSelector = () => {
   );
 };
 
-export default CollectionSelector;
+export default UnitSelector;

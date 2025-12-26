@@ -22,6 +22,7 @@ const actionButtonVariants = cva(
         xl: 'rounded-xl',
         '2xl': 'rounded-2xl',
         '3xl': 'rounded-3xl',
+        '4xl': 'rounded-[2rem]',
         full: 'rounded-full'
       },
       borderBottomThickness: {
@@ -31,7 +32,9 @@ const actionButtonVariants = cva(
         6: 'border-b-6 active:border-b-0 active:translate-y-[6px] active:mb-[6px]',
         8: 'border-b-8 active:border-b-0 active:translate-y-[8px] active:mb-[8px]',
         10: 'border-b-10 active:border-b-0 active:translate-y-[10px] active:mb-[10px]',
-        12: 'border-b-12 active:border-b-0 active:translate-y-[12px] active:mb-[12px]'
+        12: 'border-b-12 active:border-b-0 active:translate-y-[12px] active:mb-[12px]',
+        14: 'border-b-14 active:border-b-0 active:translate-y-[14px] active:mb-[14px]',
+        16: 'border-b-16 active:border-b-0 active:translate-y-[16px] active:mb-[16px]'
       }
     },
     defaultVariants: {

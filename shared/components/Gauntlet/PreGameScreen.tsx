@@ -22,6 +22,7 @@ import {
   type RepetitionCount
 } from './types';
 import { ActionButton } from '@/shared/components/ui/ActionButton';
+import { cn } from '@/shared/lib/utils';
 
 interface PreGameScreenProps {
   dojoType: 'kana' | 'kanji' | 'vocabulary';
@@ -106,7 +107,10 @@ export default function PreGameScreen({
         <div className='w-full max-w-lg space-y-4'>
           {/* Header */}
           <div className='space-y-3 text-center'>
-            <Swords size={56} className='mx-auto text-[var(--main-color)] ' />
+            <Swords
+              size={56}
+              className='mx-auto text-[var(--secondary-color)]'
+            />
             <h1 className='text-2xl font-bold text-[var(--main-color)]'>
               {dojoLabel} Gauntlet
             </h1>
@@ -116,7 +120,7 @@ export default function PreGameScreen({
           </div>
 
           {/* Selected Sets */}
-          <div className='rounded-xl bg-[var(--card-color)] p-4'>
+          <div className='rounded-2xl bg-[var(--card-color)] p-4'>
             <div className='flex flex-col gap-2'>
               <span className='text-sm font-medium text-[var(--main-color)]'>
                 Selected:
@@ -133,13 +137,63 @@ export default function PreGameScreen({
 
           {/* Difficulty Selection */}
           {(() => {
-            // Toggle between old and new difficulty selector designs
-            const useNewDifficultySelector = true;
+            // Switch between difficulty selector designs:
+            // 0 = Old design (simple buttons with border highlight)
+            // 1 = Card design (ActionButtons in card, transparent non-selected)
+            // 2 = UnitSelector-style (all ActionButtons with main/secondary colors and opacity)
+            const difficultySelectorDesign: 0 | 1 | 2 = 2;
 
-            if (useNewDifficultySelector) {
+            if (difficultySelectorDesign === 2) {
+              // Design 2: UnitSelector-style ActionButtons (main/secondary with opacity)
+              return (
+                <div
+                  className={cn(
+                    'space-y-3',
+                    true && 'rounded-2xl bg-[var(--card-color)] p-4'
+                  )}
+                >
+                  <h3 className='text-sm text-[var(--main-color)]'>
+                    Difficulty
+                  </h3>
+                  <div className='flex w-full justify-center gap-3'>
+                    {(
+                      Object.entries(DIFFICULTY_CONFIG) as [
+                        GauntletDifficulty,
+                        (typeof DIFFICULTY_CONFIG)[GauntletDifficulty]
+                      ][]
+                    ).map(([key, config]) => {
+                      const isSelected = key === difficulty;
+                      return (
+                        <ActionButton
+                          key={key}
+                          onClick={() => handleDifficultyClick(key)}
+                          colorScheme={isSelected ? 'main' : 'secondary'}
+                          borderColorScheme={isSelected ? 'main' : 'secondary'}
+                          borderBottomThickness={10}
+                          borderRadius='3xl'
+                          className={clsx(
+                            'flex-1 gap-1.5 px-4 py-2.5 text-sm',
+                            !isSelected && 'opacity-60'
+                          )}
+                        >
+                          {difficultyIcons[key]}
+                          <span>{config.label}</span>
+                        </ActionButton>
+                      );
+                    })}
+                  </div>
+                  <p className='text-center text-xs text-[var(--secondary-color)]'>
+                    {DIFFICULTY_CONFIG[difficulty].description}
+                  </p>
+                </div>
+              );
+            }
+
+            if (difficultySelectorDesign === 1) {
+              // Design 1: Card design (ActionButtons in card, transparent non-selected)
               return (
                 <div className='space-y-3'>
-                  <h3 className='text-sm font-medium text-[var(--main-color)]'>
+                  <h3 className='text-sm text-[var(--main-color)]'>
                     Difficulty
                   </h3>
                   <div className='flex w-full justify-center gap-2 rounded-3xl border-0 border-[var(--border-color)] bg-[var(--card-color)] p-2'>
@@ -177,10 +231,10 @@ export default function PreGameScreen({
               );
             }
 
-            // Old difficulty selector design
+            // Design 0: Old design (simple buttons with border highlight)
             return (
               <div className='space-y-3'>
-                <h3 className='text-sm font-medium text-[var(--secondary-color)]'>
+                <h3 className='text-sm text-[var(--secondary-color)]'>
                   Difficulty
                 </h3>
                 <div className='grid grid-cols-3 gap-2'>
@@ -198,7 +252,7 @@ export default function PreGameScreen({
                         className={clsx(
                           'flex flex-col items-center gap-1 rounded-xl p-3',
                           'transition-all duration-200',
-                          'hover:cursor-pointer',
+                          'border-2 hover:cursor-pointer',
                           isSelected
                             ? 'border-[var(--main-color)] bg-[var(--main-color)]/10'
                             : 'border-[var(--border-color)] bg-[var(--card-color)] hover:border-[var(--secondary-color)]/50'
@@ -206,7 +260,7 @@ export default function PreGameScreen({
                       >
                         <div
                           className={clsx(
-                            'text-xl fill-current',
+                            'fill-current text-xl',
                             isSelected
                               ? 'text-[var(--main-color)]'
                               : 'text-[var(--muted-color)]'
@@ -236,84 +290,139 @@ export default function PreGameScreen({
           })()}
 
           {/* Game Mode Cards */}
-          <div className='space-y-3'>
-            <h3 className='text-sm font-medium text-[var(--main-color)]'>
-              Mode
-            </h3>
-            {gameModes.map(mode => {
-              const isSelected = mode.id === gameMode;
-              const Icon = mode.icon;
-              const isDisabled = mode.id === 'Pick' && !pickModeSupported;
+          {(() => {
+            // Toggle between mode selector designs:
+            // true = New design (ActionButtons with main/secondary colors and opacity)
+            // false = Old design (detailed cards with icons and radio indicators)
+            const useNewModeSelectorDesign = true;
 
+            if (useNewModeSelectorDesign) {
+              // New design: ActionButton style (matching UnitSelector/Difficulty)
               return (
-                <button
-                  key={mode.id}
-                  disabled={isDisabled}
-                  onClick={() => {
-                    if (!isDisabled) {
-                      playClick();
-                      setGameMode(mode.id);
-                    }
-                  }}
-                  className={clsx(
-                    'w-full rounded-2xl p-4 text-left',
-                    'flex items-center gap-4 border-2 bg-[var(--card-color)]',
-                    isDisabled && 'cursor-not-allowed opacity-50',
-                    !isDisabled && 'hover:cursor-pointer',
-                    isSelected
-                      ? 'border-[var(--main-color)]'
-                      : 'border-[var(--border-color)]'
+                <div
+                  className={cn(
+                    'space-y-3',
+                    true && 'rounded-2xl bg-[var(--card-color)] p-4'
                   )}
                 >
-                  <div
-                    className={clsx(
-                      'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
-                      isSelected
-                        ? 'bg-[var(--main-color)] text-[var(--background-color)]'
-                        : 'bg-[var(--border-color)] text-[var(--muted-color)]'
-                    )}
-                  >
-                    <Icon size={20} />
+                  <h3 className='text-sm text-[var(--main-color)]'>Mode</h3>
+                  <div className='flex w-full justify-center gap-3'>
+                    {gameModes.map(mode => {
+                      const isSelected = mode.id === gameMode;
+                      const Icon = mode.icon;
+                      const isDisabled =
+                        mode.id === 'Pick' && !pickModeSupported;
+
+                      return (
+                        <ActionButton
+                          key={mode.id}
+                          disabled={isDisabled}
+                          onClick={() => {
+                            if (!isDisabled) {
+                              playClick();
+                              setGameMode(mode.id);
+                            }
+                          }}
+                          colorScheme={isSelected ? 'main' : 'secondary'}
+                          borderColorScheme={isSelected ? 'main' : 'secondary'}
+                          borderBottomThickness={10}
+                          borderRadius='3xl'
+                          className={clsx(
+                            'flex-1 gap-2 px-4 py-3 text-sm',
+                            !isSelected && 'opacity-60',
+                            isDisabled && 'cursor-not-allowed opacity-30'
+                          )}
+                        >
+                          <Icon size={20} />
+                          <span>{mode.title}</span>
+                        </ActionButton>
+                      );
+                    })}
                   </div>
-                  <div className='min-w-0 flex-1'>
-                    <h4 className='font-medium text-[var(--secondary-color)]'>
-                      {mode.title}
-                    </h4>
-                    <p className='text-xs text-[var(--muted-color)]'>
-                      {mode.description}
-                    </p>
-                  </div>
-                  <div
-                    className={clsx(
-                      'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2',
-                      isSelected
-                        ? 'border-[var(--main-color)] bg-[var(--main-color)]'
-                        : 'border-[var(--border-color)]'
-                    )}
-                  >
-                    {isSelected && (
-                      <svg
-                        className='h-3 w-3 text-[var(--background-color)]'
-                        fill='none'
-                        viewBox='0 0 24 24'
-                        stroke='currentColor'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={3}
-                          d='M5 13l4 4L19 7'
-                        />
-                      </svg>
-                    )}
-                  </div>
-                </button>
+                </div>
               );
-            })}
-          </div>
+            }
+
+            // Old design: Detailed cards with icons and radio indicators
+            return (
+              <div className='space-y-3'>
+                <h3 className='text-sm text-[var(--main-color)]'>Mode</h3>
+                {gameModes.map(mode => {
+                  const isSelected = mode.id === gameMode;
+                  const Icon = mode.icon;
+                  const isDisabled = mode.id === 'Pick' && !pickModeSupported;
+
+                  return (
+                    <button
+                      key={mode.id}
+                      disabled={isDisabled}
+                      onClick={() => {
+                        if (!isDisabled) {
+                          playClick();
+                          setGameMode(mode.id);
+                        }
+                      }}
+                      className={clsx(
+                        'w-full rounded-2xl p-4 text-left',
+                        'flex items-center gap-4 border-2 bg-[var(--card-color)]',
+                        isDisabled && 'cursor-not-allowed opacity-50',
+                        !isDisabled && 'hover:cursor-pointer',
+                        isSelected
+                          ? 'border-[var(--main-color)]'
+                          : 'border-[var(--border-color)]'
+                      )}
+                    >
+                      <div
+                        className={clsx(
+                          'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
+                          isSelected
+                            ? 'bg-[var(--main-color)] text-[var(--background-color)]'
+                            : 'bg-[var(--border-color)] text-[var(--muted-color)]'
+                        )}
+                      >
+                        <Icon size={20} />
+                      </div>
+                      <div className='min-w-0 flex-1'>
+                        <h4 className='font-medium text-[var(--secondary-color)]'>
+                          {mode.title}
+                        </h4>
+                        <p className='text-xs text-[var(--muted-color)]'>
+                          {mode.description}
+                        </p>
+                      </div>
+                      <div
+                        className={clsx(
+                          'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2',
+                          isSelected
+                            ? 'border-[var(--main-color)] bg-[var(--main-color)]'
+                            : 'border-[var(--border-color)]'
+                        )}
+                      >
+                        {isSelected && (
+                          <svg
+                            className='h-3 w-3 text-[var(--background-color)]'
+                            fill='none'
+                            viewBox='0 0 24 24'
+                            stroke='currentColor'
+                          >
+                            <path
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              strokeWidth={3}
+                              d='M5 13l4 4L19 7'
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })()}
 
           {/* Repetitions per character */}
-          <div className='space-y-3 rounded-xl bg-[var(--card-color)] p-4'>
+          <div className='space-y-3 rounded-2xl bg-[var(--card-color)] p-4'>
             <p className='text-sm font-medium text-[var(--main-color)]'>
               Repetitions per character:
             </p>
