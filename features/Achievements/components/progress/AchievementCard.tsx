@@ -31,7 +31,7 @@ export const AchievementCard = ({
     <div
       className={clsx(
         'relative p-6',
-        'overflow-hidden rounded-2xl',
+        'overflow-hidden rounded-2xl border border-[var(--border-color)]',
         isUnlocked
           ? 'bg-[var(--card-color)]'
           : 'bg-[var(--background-color)] opacity-80'
