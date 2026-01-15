@@ -9,6 +9,11 @@ permissions:
   pull-requests: write
   issues: write
 
+# Prevent multiple reviews from overlapping on the same PR
+concurrency:
+  group: pr-community-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   validate-and-merge:
     runs-on: ubuntu-latest

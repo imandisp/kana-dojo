@@ -17,7 +17,7 @@ module.exports = {
       'easy',
       'up for grabs',
       'first timers only',
-      'low hanging fruit',
+      // 'low hanging fruit',
       'documentation'
     ],
     // Label for filtering community issues

@@ -46,8 +46,8 @@ jobs:
             });
 
             const now = new Date();
-            const TWO_DAYS = templates.config.staleWarningAfterMs;
-            const THREE_DAYS = templates.config.staleCloseAfterMs;
+            const WARNING_THRESHOLD_MS = templates.config.staleWarningAfterMs;   // 12 hours
+            const CLOSE_THRESHOLD_MS = templates.config.staleCloseAfterMs;       // 24 hours
 
             let needsCommit = false;
             let themes = JSON.parse(fs.readFileSync(themeBacklogPath, 'utf8'));
@@ -62,7 +62,7 @@ jobs:
               const timeSinceActivity = now - lastActivity;
               const hasWarning = issue.labels.some(function(l) { return l.name === templates.labels.staleWarning; });
               
-              if (timeSinceActivity >= THREE_DAYS) {
+              if (timeSinceActivity >= CLOSE_THRESHOLD_MS) {
                 console.log('Closing stale issue #' + issue.number + ': ' + issue.title);
                 
                 const closedMsg = t.closed;
@@ -85,28 +85,36 @@ jobs:
                 
                 const title = issue.title;
                 
-                if (title.includes('Add Theme:')) {
-                  const themeName = title.replace('🎨 Add Theme: ', '').trim();
-                  const themeIndex = themes.findIndex(function(t) { return t.name === themeName; });
-                  if (themeIndex !== -1) {
-                    themes[themeIndex].issued = false;
-                    needsCommit = true;
-                    console.log('Re-enabled theme: ' + themeName);
+                if (title.includes('Add New Color Theme:')) {
+                  // Extract theme name from title like: "[Good First Issue] 🎨 Add New Color Theme: Neon Sakura (good first issue)"
+                  const themeMatch = title.match(/Add New Color Theme:\s*(.+?)\s*\(good first issue\)/i);
+                  if (themeMatch) {
+                    const themeName = themeMatch[1].trim();
+                    const themeIndex = themes.findIndex(function(t) { return t.name === themeName; });
+                    if (themeIndex !== -1 && !themes[themeIndex].completed) {
+                      themes[themeIndex].issued = false;
+                      needsCommit = true;
+                      console.log('Re-enabled theme: ' + themeName);
+                    } else if (themeIndex !== -1 && themes[themeIndex].completed) {
+                      console.log('Theme "' + themeName + '" is already completed, not re-enabling');
+                    }
                   }
                 } else if (title.includes('Add Japan Fact #')) {
                   const factIdMatch = title.match(/#(\d+)/);
                   if (factIdMatch) {
                     const factId = parseInt(factIdMatch[1]);
                     const factIndex = facts.findIndex(function(f) { return f.id === factId; });
-                    if (factIndex !== -1) {
+                    if (factIndex !== -1 && !facts[factIndex].completed) {
                       facts[factIndex].issued = false;
                       needsCommit = true;
                       console.log('Re-enabled fact #' + factId);
+                    } else if (factIndex !== -1 && facts[factIndex].completed) {
+                      console.log('Fact #' + factId + ' is already completed, not re-enabling');
                     }
                   }
                 }
                 
-              } else if (timeSinceActivity >= TWO_DAYS && !hasWarning) {
+              } else if (timeSinceActivity >= WARNING_THRESHOLD_MS && !hasWarning) {
                 console.log('Adding warning to issue #' + issue.number);
                 
                 const warningMsg = t.warning;

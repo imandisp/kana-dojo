@@ -80,6 +80,12 @@ jobs:
                 const themeIdx = themes.findIndex(function(th) { return th.id === item.id; });
                 themes[themeIdx].issued = true;
                 fs.writeFileSync(themeBacklogPath, JSON.stringify(themes, null, 2));
+                
+                // Update lastType so next run tries the other type
+                state.lastType = nextType;
+                state.lastRun = new Date().toISOString();
+                fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+                
                 core.setOutput('should_commit', 'true');
                 return;
               }
@@ -148,6 +154,12 @@ jobs:
                 const factIdx = facts.findIndex(function(f) { return f.id === item.id; });
                 facts[factIdx].issued = true;
                 fs.writeFileSync(factsBacklogPath, JSON.stringify(facts, null, 2));
+                
+                // Update lastType so next run tries the other type
+                state.lastType = nextType;
+                state.lastRun = new Date().toISOString();
+                fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+                
                 core.setOutput('should_commit', 'true');
                 return;
               }
