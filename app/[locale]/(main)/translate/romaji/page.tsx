@@ -13,6 +13,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
+  const isEs = locale === 'es';
   const base = await generatePageMetadata('translate', {
     locale,
     pathname: '/translate/romaji',
@@ -20,9 +21,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     ...base,
-    title: 'Romaji Translator Guide (Japanese to Romaji) | KanaDojo',
-    description:
-      'Learn how to use Japanese to romaji output for pronunciation and reading support, with practical checks for kana and kanji text.',
+    title: isEs
+      ? 'Guia de Traductor Romaji (Japones a Romaji) | KanaDojo'
+      : 'Romaji Translator Guide (Japanese to Romaji) | KanaDojo',
+    description: isEs
+      ? 'Aprende a usar salida de japones a romaji para pronunciacion y lectura, con verificaciones practicas para kana y kanji.'
+      : 'Learn how to use Japanese to romaji output for pronunciation and reading support, with practical checks for kana and kanji text.',
   };
 }
 

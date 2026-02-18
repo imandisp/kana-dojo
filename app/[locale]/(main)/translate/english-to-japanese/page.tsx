@@ -13,6 +13,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
+  const isEs = locale === 'es';
   const base = await generatePageMetadata('translate', {
     locale,
     pathname: '/translate/english-to-japanese',
@@ -20,9 +21,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     ...base,
-    title: 'English to Japanese Translator Online | KanaDojo',
-    description:
-      'Translate English to Japanese online for free. Get Japanese text with romaji support for pronunciation and study.',
+    title: isEs
+      ? 'Traductor Online de Ingles a Japones | KanaDojo'
+      : 'English to Japanese Translator Online | KanaDojo',
+    description: isEs
+      ? 'Traduce de ingles a japones online gratis con soporte de romaji para pronunciacion y estudio.'
+      : 'Translate English to Japanese online for free. Get Japanese text with romaji support for pronunciation and study.',
   };
 }
 
