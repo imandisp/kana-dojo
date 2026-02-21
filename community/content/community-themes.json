@@ -484,5 +484,11 @@
     "backgroundColor": "oklch(92.0% 0.012 90.0 / 1)",
     "mainColor": "oklch(35.0% 0.085 255.0 / 1)",
     "secondaryColor": "oklch(55.0% 0.055 65.0 / 1)"
-  }
+  },
+  {
+  "id": "winter-kimono",
+  "backgroundColor": "oklch(16.0% 0.040 260.0 / 1)",
+  "mainColor": "oklch(88.0% 0.020 240.0 / 1)",
+  "secondaryColor": "oklch(68.0% 0.110 310.0 / 1)"
+}
 ]
